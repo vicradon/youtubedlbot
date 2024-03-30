@@ -1,0 +1,36 @@
+name: App Deployment
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Virtual Machine
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: copy file via ssh key
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOYMENT_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: "."
+          target: /home/osi/youtubedlbot
+
+      # - name: SSH into server and restart app
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ secrets.SERVER_HOST }}
+      #     username: ${{ secrets.SERVER_USERNAME }}
+      #     key: ${{ secrets.SERVER_SSH_KEY }}
+      #     port: ${{ secrets.SERVER_PORT }} # Specify the SSH port if different from default
+      #     script: |
+      #       cd /path/to/remote/directory  # Change this to the directory where your app is deployed
+      #       sudo systemctl restart your-app.service  # Restart your app; adjust as needed
