@@ -21,7 +21,7 @@ jobs:
           username: ${{ secrets.VM_USERNAME }}
           port: ${{ secrets.PORT }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: "./*"
+          source: "*"
           target: ${{secrets.DEPLOYMENT_DIRECTORY}}
 
       # - name: SSH into server and restart app
