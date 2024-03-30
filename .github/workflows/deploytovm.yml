@@ -22,7 +22,7 @@ jobs:
           port: ${{ secrets.PORT }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           source: "./*"
-          target: /home/${{secrets.VM_USERNAME}}/youtubedlbot
+          target: ${{secrets.DEPLOYMENT_DIRECTORY}}
 
       # - name: SSH into server and restart app
       #   uses: appleboy/ssh-action@master
