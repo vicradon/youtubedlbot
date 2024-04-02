@@ -3,49 +3,40 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from dotenv import load_dotenv
 import os
 import subprocess
-import threading
-import aiofiles
-
+import uuid
 import asyncio
-import nats
 
 load_dotenv()
 
 
 async def video_downloader(context, url):
-    out = subprocess.run(["yt-dl", "--format", "mp4", url], capture_output=True)
+    save_directory = f"/tmp/{str(uuid.uuid4())}"
+    os.makedirs(save_directory)
+
+    out = subprocess.run(["yt-dl", "-o", "%(title)s.%(ext)s", "-P", save_directory, "-S", "res", "ext:mp4:m4a", "--recode", "mp4", "--no-simulate", url], capture_output=True)
+
     download_output_text = out.stdout.decode('utf-8')
 
-    print(download_output_text)
+    downloaded_video_path = f"{save_directory}/{os.listdir(save_directory)[0]}"
 
     output_text = "Video retrived successfully"
 
-    f = open("first-part.mp4", "rb")
+    video_file = open(downloaded_video_path, "rb")
 
-    # await context.bot.send_document(chat_id=context._chat_id, document=f)
+    await context.bot.send_message(chat_id=context._chat_id, text="Now sending video...")
+
+    await context.bot.send_video(chat_id=context._chat_id, video=video_file, supports_streaming=True)
     await context.bot.send_message(chat_id=context._chat_id, text=output_text)
 
 
-    # async with open("README.md") as file:
-    #     # print(file)
-    #     await context.bot.send_document(chat_id=context._chat_id, document=file)
-
-
 async def download_full_video(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-
-    # await nc.publish('hello', b'Hello World!')
-    # print(out)
-
     try:
         # handling the case where a video input has already been processed when an edit happened
         args = update.message.text.split(" ")
         
         await update.message.reply_text("I've started working on it!")
+
         # threading.Thread(target=video_downloader, args=(context, args[1])).start()
-
-        # async with aiofiles.open("README.md") as file:
-        #     await context.bot.send_document(chat_id=context._chat_id, document=file)
-
         asyncio.create_task(video_downloader(context, args[1]))
 
 
