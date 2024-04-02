@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: zip source code
         uses: actions/checkout@v4
-        run: |
+        script: |
           git ls-files -z | xargs -0 zip archive.zip
 
       - name: copy file via ssh key
