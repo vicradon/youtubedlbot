@@ -14,10 +14,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: zip source code
-        uses: actions/checkout@v4
-        script: |
-          git ls-files -z | xargs -0 zip archive.zip
+      - uses: actions/checkout@v4
+
+      - name: Zip repository content
+        run: git ls-files -z | xargs -0 zip archive.zip
 
       - name: copy file via ssh key
         uses: appleboy/scp-action@v0.1.7
