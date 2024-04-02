@@ -14,6 +14,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: zip source code
+      - uses: actions/checkout@v4
+      - run: |
+          git ls-files -z | xargs -0 zip archive.zip
+
       - name: copy file via ssh key
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -21,16 +26,29 @@ jobs:
           username: ${{ secrets.VM_USERNAME }}
           port: ${{ secrets.PORT }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          source: "*"
+          source: "archive.zip"
           target: ${{secrets.DEPLOYMENT_DIRECTORY}}
 
-      # - name: SSH into server and restart app
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ secrets.SERVER_HOST }}
-      #     username: ${{ secrets.SERVER_USERNAME }}
-      #     key: ${{ secrets.SERVER_SSH_KEY }}
-      #     port: ${{ secrets.SERVER_PORT }} # Specify the SSH port if different from default
-      #     script: |
-      #       cd /path/to/remote/directory  # Change this to the directory where your app is deployed
-      #       sudo systemctl restart your-app.service  # Restart your app; adjust as needed
+      - name: SSH into server and update application code
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOYMENT_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{secrets.DEPLOYMENT_DIRECTORY}}
+            unzip archive.zip
+
+      - name: Install dependencies
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOYMENT_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{secrets.DEPLOYMENT_DIRECTORY}}
+            python -m venv venv  # Create virtual environment (adjust command if needed)
+            source venv/bin/activate  # Activate virtual environment
+            pip install -r requirements.txt  # Install dependencies from requirements.txt
