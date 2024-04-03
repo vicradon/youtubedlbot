@@ -64,5 +64,5 @@ jobs:
             cd ${{secrets.DEPLOYMENT_DIRECTORY}}
             source .venv/bin/activate  # Activate virtual environment
             export TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
-            pkill -f main.py || true  # Stop the bot if running, ignore errors if not running
+            # pkill -f main.py || true  # Stop the bot if running, ignore errors if not running
             nohup python main.py > /dev/null 2>&1 &  # Start the bot in the background
