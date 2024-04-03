@@ -51,6 +51,7 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ secrets.PORT }}
           script: |
+            cd ${{secrets.DEPLOYMENT_DIRECTORY}}
             source .venv/bin/activate  
             export TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
             pm2 restart main.py
