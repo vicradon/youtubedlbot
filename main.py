@@ -13,7 +13,7 @@ async def video_downloader(context, url):
     save_directory = f"/tmp/{str(uuid.uuid4())}"
     os.makedirs(save_directory)
 
-    out = subprocess.run(["yt-dl", "-o", "%(title)s.%(ext)s", "-P", save_directory, "-S", "res", "ext:mp4:m4a", "--recode", "mp4", "--no-simulate", url], capture_output=True)
+    out = subprocess.run(["yt-dlp", "-o", "%(title)s.%(ext)s", "-P", save_directory, "-S", "res", "ext:mp4:m4a", "--recode", "mp4", "--no-simulate", url], capture_output=True)
 
     download_output_text = out.stdout.decode('utf-8')
 

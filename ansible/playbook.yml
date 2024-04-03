@@ -13,3 +13,20 @@
       apt:
         name: python3.10-venv
         state: present
+
+    - name: Add yt-dlp PPA repository
+      become: yes
+      apt_repository:
+        repo: "ppa:tomtomtom/yt-dlp"
+        state: present
+
+    - name: Update apt package list
+      become: yes
+      apt:
+        update_cache: yes
+
+    - name: Install yt-dlp
+      become: yes
+      apt:
+        name: yt-dlp
+        state: present
