@@ -40,7 +40,7 @@ jobs:
             cd ${{secrets.DEPLOYMENT_DIRECTORY}}
             unzip -o archive.zip
 
-      - name: Install dependencies
+      - name: Install dependencies and set environment variables
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DEPLOYMENT_HOST }}
@@ -52,4 +52,17 @@ jobs:
             python3 -m venv .venv  # Create virtual environment (adjust command if needed)
             source .venv/bin/activate  # Activate virtual environment
             pip install -r requirements.txt  # Install dependencies from requirements.txt
+
+            export TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+      - name: Run app
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOYMENT_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{secrets.DEPLOYMENT_DIRECTORY}}
+            source .venv/bin/activate  # Activate virtual environment
             python main.py
