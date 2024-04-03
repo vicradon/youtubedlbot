@@ -29,7 +29,7 @@ jobs:
           source: "archive.zip"
           target: ${{secrets.DEPLOYMENT_DIRECTORY}}
 
-      - name: SSH into server and update application code
+      - name: SSH into server and update application code and update dependencies
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DEPLOYMENT_HOST }}
@@ -39,8 +39,11 @@ jobs:
           script: |
             cd ${{secrets.DEPLOYMENT_DIRECTORY}}
             unzip -o archive.zip
+            python3 -m venv .venv 
+            source .venv/bin/activate
+            pip install -r requirements.txt
 
-      - name: Install dependencies
+      - name: Restart app
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DEPLOYMENT_HOST }}
@@ -48,21 +51,6 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            cd ${{secrets.DEPLOYMENT_DIRECTORY}}
-            python3 -m venv .venv  # Create virtual environment (adjust command if needed)
-            source .venv/bin/activate  # Activate virtual environment
-            pip install -r requirements.txt  # Install dependencies from requirements.txt
-
-      - name: Set environment variables and Restart app
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.DEPLOYMENT_HOST }}
-          username: ${{ secrets.VM_USERNAME }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            (source .venv/bin/activate  # Activate virtual environment
-            export TELEGRAM_BOT_TOKEN=***
-            (pkill -f main.py || true)  # Stop the bot if running, ignore errors if not running
-            nohup python main.py > /dev/null 2>&1 &  # Start the bot in the background
-            )
+            source .venv/bin/activate  
+            export TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+            pm2 restart main.py

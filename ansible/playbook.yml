@@ -1,32 +1,51 @@
-- name: Provision resources needed to run the bo
+- name: Provision resources needed to run the bot
   hosts: hosts
+  become: true
 
   tasks:
     - name: Update APT Repositories
-      become: yes
       apt:
         update_cache: yes
         force_apt_get: yes
 
     - name: Install Python 3.10 venv
-      become: yes
       apt:
         name: python3.10-venv
         state: present
 
     - name: Add yt-dlp PPA repository
-      become: yes
       apt_repository:
         repo: "ppa:tomtomtom/yt-dlp"
         state: present
 
     - name: Update apt package list
-      become: yes
       apt:
         update_cache: yes
 
     - name: Install yt-dlp
-      become: yes
       apt:
         name: yt-dlp
         state: present
+
+    - name: Add NodeSource repository
+      apt_repository:
+        repo: "deb https://deb.nodesource.com/node_20.x {{ ansible_distribution_release }} main"
+        state: present
+        update_cache: yes
+        filename: nodesource
+
+    - name: Import GPG key for NodeSource repository
+      apt_key:
+        url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+        state: present
+
+    - name: Install Node.js
+      apt:
+        name: nodejs
+        state: present
+
+    - name: Install pm2 globally using npm
+      npm:
+        name: pm2
+        state: present
+        global: true
