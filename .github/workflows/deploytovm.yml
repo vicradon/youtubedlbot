@@ -63,7 +63,5 @@ jobs:
           script: |
             cd ${{secrets.DEPLOYMENT_DIRECTORY}}
             source .venv/bin/activate  # Activate virtual environment
-
             export TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
-
             python main.py
